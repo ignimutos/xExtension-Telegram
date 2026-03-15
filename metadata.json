@@ -1,0 +1,8 @@
+{
+  "name": "Telegram",
+  "author": "ignimutos",
+  "description": "Push newly fetched FreshRSS entries to a Telegram bot with feed filters, exclude filters, and an optional link preview toggle.",
+  "version": 1.0,
+  "entrypoint": "Telegram",
+  "type": "user"
+}
