@@ -333,18 +333,26 @@ return $value !== '';
 	}
 
 	private function sanitizeEntryContent(string $content): string {
+		$content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+		$content = $this->normalizeLineBreaks($content);
 		$content = preg_replace('/<\s*br\s*\/?\s*>/i', "\n", $content) ?? $content;
+		$content = preg_replace('/<\s*hr\b[^>]*\/?\s*>/i', "\n", $content) ?? $content;
 		$content = preg_replace('/<\s*li\b[^>]*>/i', '• ', $content) ?? $content;
 		$content = preg_replace('/<\s*\/\s*li\s*>/i', "\n", $content) ?? $content;
-		$content = preg_replace('/<\s*\/\s*(p|div|section|article|h[1-6]|tr)\s*>/i', "\n", $content) ?? $content;
+		$content = preg_replace('/<\s*\/\s*(address|article|aside|blockquote|dd|div|dl|dt|fieldset|figcaption|figure|footer|form|h[1-6]|header|main|nav|ol|p|pre|section|table|tbody|tfoot|thead|tr|ul)\s*>/i', "\n", $content) ?? $content;
+		$content = preg_replace('/<\s*(table|tbody|tfoot|thead|tr)\b[^>]*>/i', "\n", $content) ?? $content;
+		$content = preg_replace('/<\s*\/\s*(td|th)\s*>/i', " ", $content) ?? $content;
 		$content = strip_tags($content);
-		$content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-		$content = preg_replace("/\r\n?/", "\n", $content) ?? $content;
+		$content = $this->normalizeLineBreaks($content);
 		$content = preg_replace('/[^\S\n]+/u', ' ', $content) ?? $content;
-		$content = preg_replace('/\n[ \t]+/u', "\n", $content) ?? $content;
+		$content = preg_replace('/ *\n */u', "\n", $content) ?? $content;
 		$content = preg_replace('/\n{3,}/', "\n\n", $content) ?? $content;
 
 		return trim($content);
+	}
+
+	private function normalizeLineBreaks(string $content): string {
+		return preg_replace("/(?:\r\n?|\x0B|\f|\x{0085}|\x{2028}|\x{2029})/u", "\n", $content) ?? $content;
 	}
 
 	private function decodeEntryText(string $text): string {
